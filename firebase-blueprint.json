@@ -1,0 +1,58 @@
+{
+  "entities": {
+    "Appliance": {
+      "title": "Household Appliance",
+      "description": "An appliance entry for a specific user's household",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string", "description": "Name of the appliance" },
+        "category": { "type": "string", "description": "Category of the appliance" },
+        "watts": { "type": "number", "description": "Power rating in Watts" },
+        "quantity": { "type": "number", "description": "Number of units" },
+        "hours": { "type": "number", "description": "Hours used per day" },
+        "days": { "type": "number", "description": "Days used per month" },
+        "efficiency": { "type": "string", "description": "Efficiency rating (e.g. 5 Star)" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["name", "watts", "quantity", "hours", "days"]
+    },
+    "UserProfile": {
+      "title": "User Profile",
+      "description": "User specific settings and metadata",
+      "type": "object",
+      "properties": {
+        "displayName": { "type": "string" },
+        "homeType": { "type": "string" },
+        "region": { "type": "string" },
+        "tariffMethodology": { "type": "string" },
+        "baseRate": { "type": "number" },
+        "currency": { "type": "string" }
+      }
+    },
+    "BillHistory": {
+      "title": "Monthly Bill Record",
+      "description": "Historical record of estimated vs actual bills",
+      "type": "object",
+      "properties": {
+        "month": { "type": "string", "description": "Month name or YYYY-MM" },
+        "totalKwh": { "type": "number" },
+        "estimatedCost": { "type": "number" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      }
+    }
+  },
+  "firestore": {
+    "users/{userId}/appliances": {
+      "schema": "Appliance",
+      "description": "Collection of appliances for a user"
+    },
+    "users/{userId}/billHistory": {
+      "schema": "BillHistory",
+      "description": "Monthly energy reports"
+    },
+    "users/{userId}": {
+      "schema": "UserProfile",
+      "description": "Main user document"
+    }
+  }
+}

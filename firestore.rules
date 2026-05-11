@@ -1,0 +1,91 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Default deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Helper functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isEmailVerified() {
+      return request.auth.token.email_verified == true;
+    }
+
+    // Validation Blueprints
+    function isValidUserProfile(data) {
+      return data.keys().hasAll(['displayName', 'homeType', 'region', 'tariffMethodology', 'baseRate']) &&
+             data.displayName is string && data.displayName.size() <= 100 &&
+             data.homeType is string && data.homeType.size() <= 100 &&
+             data.region is string && data.region.size() <= 100 &&
+             data.tariffMethodology is string && data.tariffMethodology.size() <= 50 &&
+             data.baseRate is number && data.baseRate >= 0 &&
+             (data.keys().hasOnly(['displayName', 'homeType', 'region', 'tariffMethodology', 'baseRate', 'currency']) || data.keys().size() == 5);
+    }
+
+    function isValidAppliance(data) {
+      return data.keys().hasAll(['name', 'category', 'watts', 'quantity', 'hours', 'days', 'createdAt']) &&
+             data.name is string && data.name.size() <= 100 &&
+             data.category is string && data.category.size() <= 100 &&
+             data.watts is number && data.watts >= 0 &&
+             data.quantity is number && data.quantity >= 0 &&
+             data.hours is number && data.hours >= 0 && data.hours <= 24 &&
+             data.days is number && data.days >= 0 && data.days <= 31 &&
+             data.createdAt is timestamp &&
+             data.keys().size() == 7;
+    }
+
+    function isValidBillHistory(data) {
+      return data.keys().hasAll(['month', 'totalKwh', 'estimatedCost', 'createdAt']) &&
+             data.month is string && data.month.size() <= 20 &&
+             data.totalKwh is number && data.totalKwh >= 0 &&
+             data.estimatedCost is number && data.estimatedCost >= 0 &&
+             data.createdAt is timestamp &&
+             data.keys().size() == 4;
+    }
+
+    // Collections
+    match /users/{userId} {
+      allow get: if isOwner(userId);
+      allow create: if isOwner(userId) && isValidUserProfile(incoming());
+      allow update: if isOwner(userId) && isValidUserProfile(incoming()) && 
+                    incoming().diff(existing()).affectedKeys().hasOnly(['displayName', 'homeType', 'region', 'tariffMethodology', 'baseRate', 'currency']);
+      
+      match /appliances/{applianceId} {
+        allow list: if isOwner(userId);
+        allow get: if isOwner(userId) && isValidId(applianceId);
+        allow create: if isOwner(userId) && isValidId(applianceId) && isValidAppliance(incoming()) && incoming().createdAt == request.time;
+        allow update: if isOwner(userId) && isValidId(applianceId) && isValidAppliance(incoming()) && 
+                      incoming().createdAt == existing().createdAt;
+        allow delete: if isOwner(userId) && isValidId(applianceId);
+      }
+
+      match /billHistory/{billId} {
+        allow list: if isOwner(userId);
+        allow get: if isOwner(userId) && isValidId(billId);
+        allow create: if isOwner(userId) && isValidId(billId) && isValidBillHistory(incoming()) && incoming().createdAt == request.time;
+        // Bill history is terminal, no updates allowed
+        allow delete: if isOwner(userId) && isValidId(billId);
+      }
+    }
+  }
+}
