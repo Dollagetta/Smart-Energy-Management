@@ -1,7 +1,7 @@
 import { ReactNode, useState } from "react";
 import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { User } from "firebase/auth";
-import { auth } from "@/src/lib/firebase";
+import { auth } from "@/lib/firebase";
 import { 
   LayoutDashboard, 
   Zap, 
@@ -40,7 +40,7 @@ export default function MainLayout({ user }: MainLayoutProps) {
   };
 
   return (
-    <div className="flex h-screen bg-slate-50 font-sans">
+    <div className="flex h-screen bg-background font-sans overflow-hidden selection:bg-primary/20">
       {/* Mobile Sidebar Overlay */}
       <AnimatePresence>
         {isSidebarOpen && (
@@ -49,7 +49,7 @@ export default function MainLayout({ user }: MainLayoutProps) {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={() => setIsSidebarOpen(false)}
-            className="fixed inset-0 z-40 bg-black/50 lg:hidden"
+            className="fixed inset-0 z-40 bg-black/60 backdrop-blur-md lg:hidden"
           />
         )}
       </AnimatePresence>
@@ -57,79 +57,137 @@ export default function MainLayout({ user }: MainLayoutProps) {
       {/* Sidebar */}
       <motion.aside
         className={cn(
-          "fixed inset-y-0 left-0 z-50 w-64 bg-white border-r border-slate-200 transition-transform lg:relative lg:translate-x-0",
+          "fixed inset-y-0 left-0 z-50 w-80 bg-card/70 backdrop-blur-3xl border-r border-border/40 transition-transform lg:relative lg:translate-x-0 overflow-hidden",
           !isSidebarOpen && "-translate-x-full"
         )}
       >
-        <div className="flex flex-col h-full p-4">
-          <div className="flex items-center gap-2 px-2 mb-8">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-primary-foreground">
-              <Zap className="h-6 w-6" />
-            </div>
-            <span className="text-xl font-bold tracking-tight">SmartEnergy</span>
+        <div className="flex flex-col h-full bg-gradient-to-b from-transparent via-transparent to-primary/5">
+          {/* Sidebar Header */}
+          <div className="p-8">
+            <Link className="flex items-center gap-4 group" to="/dashboard">
+              <div className="flex h-12 w-12 items-center justify-center rounded-[1.25rem] bg-primary text-primary-foreground shadow-2xl shadow-primary/30 group-hover:scale-110 transition-all duration-500 relative">
+                <Zap className="h-6 w-6 fill-current relative z-10" />
+                <div className="absolute inset-0 bg-white/20 rounded-[1.25rem] animate-pulse opacity-20" />
+              </div>
+              <div className="flex flex-col">
+                <span className="text-xl font-black leading-none uppercase tracking-tighter">Neural</span>
+                <span className="text-[10px] font-black text-primary tracking-[0.3em] uppercase mt-0.5 animate-pulse">Energy Core</span>
+              </div>
+            </Link>
           </div>
 
-          <nav className="flex-1 space-y-1 overflow-y-auto">
-            {navItems.map((item) => (
-              <Link
-                key={item.path}
-                to={item.path}
-                onClick={() => setIsSidebarOpen(false)}
-                className={cn(
-                  "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
-                  location.pathname === item.path
-                    ? "bg-slate-100 text-primary"
-                    : "text-slate-500 hover:bg-slate-50 hover:text-slate-900"
-                )}
-              >
-                <item.icon className="h-4 w-4" />
-                {item.label}
-              </Link>
-            ))}
+          {/* Navigation */}
+          <nav className="flex-1 px-5 space-y-2 overflow-y-auto py-6 custom-scrollbar">
+            <div className="mb-6 px-4">
+              <span className="text-[10px] font-black text-muted-foreground/60 uppercase tracking-[0.3em]">Command Center</span>
+            </div>
+
+            {navItems.map((item) => {
+              const isActive = location.pathname === item.path;
+              return (
+                <Link
+                  key={item.path}
+                  to={item.path}
+                  onClick={() => setIsSidebarOpen(false)}
+                  className={cn(
+                    "relative flex items-center gap-4 rounded-2xl px-5 py-4 text-xs font-black transition-all duration-500 group uppercase tracking-widest",
+                    isActive
+                      ? "text-primary"
+                      : "text-muted-foreground hover:text-foreground"
+                  )}
+                >
+                  <AnimatePresence>
+                    {isActive && (
+                      <motion.div
+                        layoutId="sidebar-active"
+                        className="absolute inset-0 bg-primary/5 rounded-2xl border border-primary/20 backdrop-blur-sm"
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.95 }}
+                        transition={{ type: "spring", damping: 20, stiffness: 300 }}
+                      />
+                    )}
+                  </AnimatePresence>
+                  
+                  <div className="relative z-10 flex items-center gap-4 w-full">
+                    <div className={cn(
+                      "p-2.5 rounded-xl transition-all duration-500", 
+                      isActive 
+                        ? "bg-primary text-primary-foreground shadow-xl shadow-primary/30 rotate-3" 
+                        : "bg-secondary text-muted-foreground group-hover:bg-foreground group-hover:text-background group-hover:-translate-y-1"
+                    )}>
+                      <item.icon className="h-4 w-4" />
+                    </div>
+                    <span className="transition-transform group-hover:translate-x-1">{item.label}</span>
+                    
+                    {isActive && (
+                      <motion.div 
+                        layoutId="sidebar-active-dot" 
+                        className="ml-auto w-1.5 h-1.5 rounded-full bg-primary relative z-10 shadow-sm shadow-primary"
+                        transition={{ type: "spring", damping: 12, stiffness: 200 }}
+                      />
+                    )}
+                  </div>
+                </Link>
+              );
+            })}
           </nav>
 
-          <div className="pt-4 mt-4 border-t border-slate-200">
-            <div className="flex items-center gap-3 px-3 py-4 mb-4">
-              <div className="h-9 w-9 overflow-hidden rounded-full bg-slate-100">
+          {/* User Section */}
+          <div className="p-6 border-t border-border/40 bg-muted/30 backdrop-blur-md">
+            <div className="flex items-center gap-4 p-4 rounded-[1.75rem] bg-card border border-border/40 shadow-xl relative overflow-hidden group hover:border-primary/20 transition-colors">
+              <div className="absolute top-0 right-0 p-1 opacity-0 group-hover:opacity-10 transition-opacity">
+                <SettingsIcon className="h-10 w-10 text-primary rotate-45" />
+              </div>
+              <div className="h-12 w-12 shrink-0 overflow-hidden rounded-xl bg-muted ring-2 ring-primary/10 group-hover:ring-primary transition-all duration-500">
                 <img 
                   src={user.photoURL || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.email}`} 
                   alt="Avatar" 
+                  className="object-cover transition-transform group-hover:scale-110"
                 />
               </div>
-              <div className="flex flex-col min-w-0">
-                <span className="text-sm font-semibold truncate">{user.displayName || user.email?.split('@')[0]}</span>
-                <span className="text-xs text-slate-500 truncate">{user.email}</span>
+              <div className="flex flex-col min-w-0 flex-1 relative z-10">
+                <span className="text-xs font-black truncate uppercase tracking-tight leading-none mb-1">{user.displayName || user.email?.split('@')[0]}</span>
+                <span className="text-[9px] text-muted-foreground truncate uppercase font-bold tracking-[0.15em] opacity-60 italic">{user.email}</span>
               </div>
             </div>
+            
             <Button
               variant="ghost"
-              className="w-full justify-start gap-3 hover:bg-red-50 hover:text-red-600"
+              className="w-full mt-6 justify-start gap-4 h-14 rounded-2xl hover:bg-destructive/5 hover:text-destructive group transition-all"
               onClick={handleLogout}
             >
-              <LogOut className="h-4 w-4" />
-              Logout
+              <div className="p-3 rounded-xl bg-destructive/10 group-hover:bg-destructive group-hover:text-white transition-all duration-500 group-hover:rotate-12">
+                <LogOut className="h-4 w-4" />
+              </div>
+              <span className="font-black text-[10px] uppercase tracking-[0.3em] group-hover:translate-x-1 transition-transform">Terminate Session</span>
             </Button>
           </div>
         </div>
       </motion.aside>
 
       {/* Main Content */}
-      <div className="flex flex-1 flex-col overflow-hidden">
-        <header className="flex h-16 items-center border-bottom bg-white px-4 lg:hidden">
+      <div className="flex flex-1 flex-col overflow-hidden relative">
+        <header className="flex h-20 shrink-0 items-center border-b border-border/40 bg-card/50 backdrop-blur-xl px-8 lg:hidden sticky top-0 z-40">
           <Button
             variant="ghost"
             size="icon"
             onClick={() => setIsSidebarOpen(true)}
+            className="rounded-xl hover:bg-primary/10 hover:text-primary transition-colors"
           >
             <Menu className="h-6 w-6" />
           </Button>
-          <div className="ml-4 flex items-center gap-2">
-            <Zap className="h-5 w-5 text-primary" />
-            <span className="font-bold">SmartEnergy</span>
+          <div className="ml-5 flex items-center gap-4">
+            <div className="h-10 w-10 rounded-xl bg-primary flex items-center justify-center text-white shadow-lg shadow-primary/20">
+              <Zap className="h-5 w-5 fill-current" />
+            </div>
+            <span className="font-black uppercase tracking-tighter text-lg">SmartEnergy</span>
           </div>
         </header>
 
-        <main className="flex-1 overflow-y-auto p-4 md:p-8">
+        <main className="flex-1 overflow-y-auto px-6 py-10 md:p-12 lg:p-16 space-y-16 custom-scrollbar relative z-10">
+          {/* subtle background pattern for the whole app */}
+          <div className="fixed inset-0 pointer-events-none opacity-[0.02] bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] z-0" />
           <Outlet />
         </main>
       </div>

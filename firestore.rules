@@ -63,6 +63,17 @@ service cloud.firestore {
              data.keys().size() == 4;
     }
 
+    function isValidSensorReading(data) {
+      return data.keys().hasAll(['deviceId', 'voltage', 'current', 'power', 'energy', 'createdAt']) &&
+             data.deviceId is string && data.deviceId.size() <= 100 &&
+             data.voltage is number && data.voltage >= 0 &&
+             data.current is number && data.current >= 0 &&
+             data.power is number && data.power >= 0 &&
+             data.energy is number && data.energy >= 0 &&
+             data.createdAt is timestamp &&
+             data.keys().size() == 6;
+    }
+
     // Collections
     match /users/{userId} {
       allow get: if isOwner(userId);
@@ -77,6 +88,14 @@ service cloud.firestore {
         allow update: if isOwner(userId) && isValidId(applianceId) && isValidAppliance(incoming()) && 
                       incoming().createdAt == existing().createdAt;
         allow delete: if isOwner(userId) && isValidId(applianceId);
+      }
+
+      match /sensorReadings/{readingId} {
+        allow list: if isOwner(userId);
+        allow get: if isOwner(userId) && isValidId(readingId);
+        allow create: if isOwner(userId) && isValidId(readingId) && isValidSensorReading(incoming()) && incoming().createdAt == request.time;
+        // Sensor readings are append-only (immutable once created)
+        allow update, delete: if false;
       }
 
       match /billHistory/{billId} {

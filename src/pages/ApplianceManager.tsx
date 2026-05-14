@@ -9,8 +9,8 @@ import {
   doc, 
   serverTimestamp 
 } from "firebase/firestore";
-import { db, auth, OperationType, handleFirestoreError } from "@/src/lib/firebase";
-import { APPLIANCE_TEMPLATES, ApplianceTemplate } from "@/src/constants/appliances";
+import { db, auth, OperationType, handleFirestoreError } from "@/lib/firebase";
+import { APPLIANCE_TEMPLATES, ApplianceTemplate } from "@/constants/appliances";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -114,94 +114,107 @@ export default function ApplianceManager() {
   );
 
   return (
-    <div className="space-y-8 pb-10">
-      <header className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight text-slate-900 italic">Appliance Manager</h1>
-          <p className="text-slate-500">Add and manage the electrical appliances in your home.</p>
+    <div className="space-y-12 max-w-7xl mx-auto">
+      <header className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-border/40 pb-10">
+        <div className="space-y-2">
+          <Badge variant="outline" className="rounded-full px-3 py-1 text-[10px] font-black uppercase tracking-[0.2em] bg-primary/5 text-primary border-primary/20">
+            Node Configuration
+          </Badge>
+          <h1 className="text-4xl md:text-6xl font-black uppercase tracking-tighter leading-none">
+            Appliance <br />
+            <span className="text-gradient italic">Manager</span>
+          </h1>
+          <p className="text-muted-foreground font-medium">Provision and calibrate electrical nodes within your network.</p>
         </div>
-        <Button onClick={() => setIsAddOpen(true)} className="gap-2 shrink-0">
-          <Plus className="h-4 w-4" /> Add New Appliance
+        <Button onClick={() => setIsAddOpen(true)} size="lg" className="rounded-2xl px-8 shadow-lg shadow-primary/20 group">
+          <Plus className="mr-2 h-5 w-5 group-hover:rotate-90 transition-transform" /> Add New Node
         </Button>
       </header>
 
-      <div className="grid gap-6 md:grid-cols-[1fr,300px]">
+      <div className="grid gap-10 md:grid-cols-[1fr,320px]">
         {/* Active Appliances List */}
-        <div className="space-y-4">
-          <h2 className="text-lg font-semibold flex items-center gap-2">
-            My Household Appliances 
-            <Badge variant="secondary">{appliances.length}</Badge>
-          </h2>
+        <div className="space-y-6">
+          <div className="flex items-center justify-between">
+            <h2 className="text-sm font-black uppercase tracking-[0.2em] text-muted-foreground">
+              Active Household Nodes
+            </h2>
+            <Badge variant="secondary" className="rounded-full px-4 bg-muted font-black text-[10px] tracking-widest">{appliances.length} TOTAL</Badge>
+          </div>
           
           <AnimatePresence mode="popLayout">
             {appliances.length === 0 ? (
               <motion.div 
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                className="flex flex-col items-center justify-center py-20 rounded-2xl border-2 border-dashed border-slate-200 bg-slate-50/50 text-center"
+                className="flex flex-col items-center justify-center py-32 rounded-[2.5rem] border-2 border-dashed border-border bg-muted/30 text-center"
               >
-                <div className="h-16 w-16 bg-white rounded-full shadow-sm flex items-center justify-center mb-4">
-                  <Zap className="h-8 w-8 text-slate-300" />
+                <div className="h-20 w-20 bg-card rounded-3xl shadow-xl flex items-center justify-center mb-6 border border-border/40">
+                  <Settings2 className="h-10 w-10 text-muted-foreground animate-spin-slow" />
                 </div>
-                <h3 className="text-lg font-semibold text-slate-900">No appliances added yet</h3>
-                <p className="text-slate-500 max-w-xs mx-auto mb-6">
-                  Start by adding the common appliances you use daily to calculate your usage accurately.
+                <h3 className="text-2xl font-black uppercase tracking-tighter mb-2">No Active Nodes Detected</h3>
+                <p className="text-muted-foreground font-medium max-w-xs mx-auto mb-8 uppercase text-[10px] tracking-widest">
+                  Initialize your network by provisioning high-load appliances.
                 </p>
-                <Button variant="outline" onClick={() => setIsAddOpen(true)}>
-                  Browse Catalog
+                <Button variant="outline" size="lg" onClick={() => setIsAddOpen(true)} className="rounded-2xl px-10">
+                  Initialize Catalog
                 </Button>
               </motion.div>
             ) : (
-              <div className="grid gap-4 sm:grid-cols-2">
+              <div className="grid gap-6 sm:grid-cols-2">
                 {appliances.map((app) => (
                   <motion.div
                     key={app.id}
                     layout
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0, scale: 0.95 }}
                   >
-                    <Card className="group relative overflow-hidden transition-shadow hover:shadow-md border-slate-200">
-                      <div className="absolute top-0 right-0 p-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <Card className="group relative overflow-hidden bg-card border border-border/60 card-hover shadow-sm">
+                      <div className="absolute top-4 right-4 z-20">
                         <Button 
                           variant="ghost" 
                           size="icon" 
-                          className="h-8 w-8 text-red-500 hover:bg-red-50 hover:text-red-600"
+                          className="h-9 w-9 rounded-xl text-destructive hover:bg-destructive/10 hover:text-destructive opacity-0 group-hover:opacity-100 transition-all"
                           onClick={() => handleDelete(app.id)}
                         >
                           <Trash2 className="h-4 w-4" />
                         </Button>
                       </div>
-                      <CardHeader className="p-4 pb-2">
-                        <div className="flex items-center gap-3">
-                          <div className="h-10 w-10 bg-primary/10 rounded-lg flex items-center justify-center">
-                            <Zap className="h-5 w-5 text-primary" />
+                      
+                      <CardHeader className="p-6 pb-2">
+                        <div className="flex items-center gap-4">
+                          <div className="h-14 w-14 bg-secondary rounded-2xl flex items-center justify-center group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-500 shadow-sm">
+                            <Zap className="h-7 w-7 transition-all group-hover:scale-110" />
                           </div>
-                          <div>
-                            <CardTitle className="text-base">{app.name}</CardTitle>
-                            <CardDescription className="text-xs uppercase tracking-wider font-semibold opacity-70">
+                          <div className="min-w-0">
+                            <CardTitle className="text-xl font-black uppercase tracking-tight group-hover:text-primary transition-colors truncate">
+                              {app.name}
+                            </CardTitle>
+                            <CardDescription className="text-[10px] font-black uppercase tracking-[0.2em] text-primary opacity-60">
                               {app.category}
                             </CardDescription>
                           </div>
                         </div>
                       </CardHeader>
-                      <CardContent className="p-4 pt-0">
-                        <div className="grid grid-cols-2 gap-y-2 mt-4 text-sm">
-                          <div className="flex flex-col">
-                            <span className="text-slate-500 text-xs">Consumption</span>
-                            <span className="font-semibold">{((app.watts * app.hours * app.days * app.quantity) / 1000).toFixed(1)} kWh/mo</span>
+                      
+                      <CardContent className="p-6 pt-2">
+                        <div className="grid grid-cols-2 gap-4 mt-6">
+                          <div className="p-3 bg-secondary/50 rounded-xl">
+                            <div className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-1">Consumption</div>
+                            <div className="text-sm font-black whitespace-nowrap">{((app.watts * app.hours * app.days * app.quantity) / 1000).toFixed(1)} kWh/m</div>
                           </div>
-                          <div className="flex flex-col">
-                            <span className="text-slate-500 text-xs">Usage</span>
-                            <span className="font-semibold">{app.hours}h / {app.days}d</span>
+                          <div className="p-3 bg-secondary/50 rounded-xl">
+                            <div className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-1">Runtime</div>
+                            <div className="text-sm font-black">{app.hours}h : {app.days}d</div>
                           </div>
-                          <div className="flex flex-col">
-                            <span className="text-slate-500 text-xs">Power</span>
-                            <span className="font-semibold">{app.watts} W</span>
+                          <div className="p-3 bg-secondary/50 rounded-xl">
+                            <div className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-1">Load Rating</div>
+                            <div className="text-sm font-black">{app.watts} W</div>
                           </div>
-                          <div className="flex flex-col">
-                            <span className="text-slate-500 text-xs">Efficiency</span>
-                            <Badge className="w-fit scale-90 -ml-1" variant="outline">{app.efficiency}</Badge>
+                          <div className="p-3 bg-secondary/50 rounded-xl flex items-center justify-center">
+                            <Badge variant="outline" className="font-black text-[9px] tracking-widest uppercase border-primary/20 text-primary bg-primary/5">
+                              {app.efficiency}
+                            </Badge>
                           </div>
                         </div>
                       </CardContent>
@@ -213,57 +226,60 @@ export default function ApplianceManager() {
           </AnimatePresence>
         </div>
 
-        {/* Quick Tips Sidebar */}
-        <div className="space-y-6">
-          <Card className="bg-indigo-600 text-white border-none shadow-lg shadow-indigo-200">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-lg flex items-center gap-2">
-                <TrendingDown className="h-5 w-5" /> Efficiency Tip
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm opacity-90 leading-relaxed">
-                Upgrading to 5-star rated appliances can reduce their energy consumption by up to <b>30-50%</b> compared to 1-star models.
+        {/* Sidebar */}
+        <div className="space-y-8">
+          <Card className="bg-primary text-primary-foreground border-none shadow-xl shadow-primary/20 relative overflow-hidden group p-1">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-white/20 blur-[60px] rounded-full translate-x-1/2 -translate-y-1/2" />
+            <div className="bg-primary-foreground/5 rounded-3xl p-6 relative z-10 space-y-4">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-white/20 rounded-xl group-hover:scale-110 transition-transform">
+                  <TrendingDown className="h-5 w-5" />
+                </div>
+                <CardTitle className="text-sm font-black uppercase tracking-widest leading-none">System Optimization</CardTitle>
+              </div>
+              <p className="text-xs font-medium opacity-80 leading-relaxed uppercase tracking-tight">
+                Upgrading to <span className="font-black text-white underline decoration-white/40 underline-offset-4">5-star high-efficiency nodes</span> can mitigate consumption by up to <span className="font-black text-white underline decoration-white/40 underline-offset-4">42.5%</span>.
               </p>
-            </CardContent>
+            </div>
           </Card>
 
-          <Card className="border-slate-200 bg-white">
+          <Card className="border-border/40 bg-card/50 backdrop-blur-sm shadow-sm relative overflow-hidden">
+            <div className="absolute top-0 left-0 w-full h-1 bg-linear-to-r from-transparent via-primary/30 to-transparent" />
             <CardHeader className="pb-2">
-              <CardTitle className="text-base flex items-center gap-2">
-                <Info className="h-4 w-4 text-slate-400" /> Need Help?
+              <CardTitle className="text-xs font-black uppercase tracking-[0.2em] flex items-center gap-2">
+                <Info className="h-4 w-4 text-primary" /> Technical Reference
               </CardTitle>
             </CardHeader>
-            <CardContent className="text-sm text-slate-600">
-              Check the label on the back of your appliances to find their exact power rating in Watts (W).
+            <CardContent className="text-[10px] font-bold uppercase tracking-widest leading-relaxed text-muted-foreground pt-4">
+              Cross-reference the <span className="text-foreground">wattage rating</span> on your appliance terminal with its physical hardware sticker for precise telemetry.
             </CardContent>
           </Card>
         </div>
       </div>
 
-      {/* Add Appliance Dialog */}
       <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
-        <DialogContent className="max-w-2xl sm:max-h-[90vh] flex flex-col p-0">
-          <DialogHeader className="p-6 pb-0">
-            <DialogTitle>Add Household Appliance</DialogTitle>
-            <DialogDescription>
-              Select from common templates or enter custom details.
+        <DialogContent className="max-w-2xl sm:max-h-[90vh] flex flex-col p-8 rounded-[2rem] gap-8 border-border shadow-2xl glass">
+          <DialogHeader className="p-0">
+            <DialogTitle className="text-3xl font-black uppercase tracking-tighter">Node Provisioning</DialogTitle>
+            <DialogDescription className="text-xs font-black uppercase tracking-[0.2em] text-primary/60">
+              Integrate new appliance node into telemetry network.
             </DialogDescription>
           </DialogHeader>
 
-          <div className="flex-1 overflow-y-auto px-6 py-4 space-y-6">
+          <div className="flex-1 overflow-y-auto custom-scrollbar p-1">
             {!selectedTemplate ? (
-              <div className="space-y-4">
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+              <div className="space-y-8">
+                <div className="relative group">
+                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
                   <Input 
-                    placeholder="Search appliances (e.g., AC, TV...)" 
-                    className="pl-10"
+                    placeholder="QUERY CATALOG (e.g. HVAC, DISPLAY...)" 
+                    className="pl-12 h-14 rounded-2xl bg-secondary border-none font-bold uppercase tracking-widest text-[10px] focus-visible:ring-primary/40 focus-visible:ring-offset-0 placeholder:text-muted-foreground/60"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                   />
                 </div>
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                   {filteredTemplates.map((template) => (
                     <button
                       key={template.name}
@@ -276,83 +292,87 @@ export default function ApplianceManager() {
                           watts: template.defaultWatts
                         });
                       }}
-                      className="flex flex-col items-center justify-center p-4 rounded-xl border border-slate-200 hover:border-primary hover:bg-primary/5 transition-all group"
+                      className="flex flex-col items-center justify-center p-6 rounded-2xl border border-border/40 hover:border-primary/40 bg-card hover:bg-primary/5 transition-all group relative overflow-hidden"
                     >
-                      <Zap className="h-6 w-6 text-slate-400 group-hover:text-primary mb-2" />
-                      <span className="text-xs font-semibold text-center">{template.name}</span>
+                      <div className="absolute top-0 left-0 w-full h-[2px] bg-primary scale-x-0 group-hover:scale-x-100 transition-transform origin-left" />
+                      <div className="h-12 w-12 rounded-xl bg-secondary flex items-center justify-center mb-4 group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-300">
+                        <Zap className="h-6 w-6" />
+                      </div>
+                      <span className="text-[10px] font-black text-center uppercase tracking-widest">{template.name}</span>
                     </button>
                   ))}
                   <button
                     onClick={() => setSelectedTemplate({ category: "Other", name: "Custom Appliance", defaultWatts: 100 })}
-                    className="flex flex-col items-center justify-center p-4 rounded-xl border border-dashed border-slate-300 hover:border-primary transition-all text-slate-500 hover:text-primary"
+                    className="flex flex-col items-center justify-center p-6 rounded-2xl border-2 border-dashed border-border hover:border-primary/40 hover:bg-primary/5 transition-all text-muted-foreground hover:text-primary group"
                   >
-                    <Plus className="h-6 w-6 mb-2" />
-                    <span className="text-xs font-semibold">Custom</span>
+                    <Plus className="h-6 w-6 mb-4 group-hover:scale-110 transition-transform" />
+                    <span className="text-[10px] font-black uppercase tracking-widest font-sans">Initialize Custom</span>
                   </button>
                 </div>
               </div>
             ) : (
-              <div className="space-y-4">
+              <div className="space-y-8 animate-in fade-in slide-in-from-right-4 duration-300">
                 <Button 
                   variant="ghost" 
                   size="sm" 
                   onClick={() => setSelectedTemplate(null)}
-                  className="mb-2 -ml-2 text-slate-500"
+                  className="rounded-full px-4 border border-border/40 font-black text-[10px] tracking-widest uppercase mb-4"
                 >
-                  ← Back to Catalog
+                  ← RETURN TO CATALOG
                 </Button>
-                <div className="grid sm:grid-cols-2 gap-4">
+                
+                <div className="grid sm:grid-cols-2 gap-8">
                   <div className="space-y-2">
-                    <Label htmlFor="name">Appliance Name</Label>
+                    <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-1">Label Designation</Label>
                     <Input 
-                      id="name" 
                       value={formData.name} 
                       onChange={(e) => setFormData({...formData, name: e.target.value})}
+                      className="h-12 rounded-xl bg-secondary border-none font-bold uppercase tracking-widest text-[10px] focus-visible:ring-primary/40"
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="category">Category</Label>
+                    <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-1">Classification</Label>
                     <Input 
-                      id="category" 
                       value={formData.category} 
                       disabled
+                      className="h-12 rounded-xl bg-secondary border-none font-bold uppercase tracking-widest text-[10px] opacity-60"
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="watts">Power Rating (Watts)</Label>
+                    <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-1">Load Rating (W)</Label>
                     <Input 
-                      id="watts" 
                       type="number"
                       value={formData.watts} 
                       onChange={(e) => setFormData({...formData, watts: parseInt(e.target.value) || 0})}
+                      className="h-12 rounded-xl bg-secondary border-none font-bold uppercase tracking-widest text-[10px]"
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="quantity">Quantity</Label>
+                    <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-1">Quantity Count</Label>
                     <Input 
-                      id="quantity" 
                       type="number"
                       value={formData.quantity} 
                       onChange={(e) => setFormData({...formData, quantity: parseInt(e.target.value) || 1})}
+                      className="h-12 rounded-xl bg-secondary border-none font-bold uppercase tracking-widest text-[10px]"
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="hours">Hours Used Per Day</Label>
+                    <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-1">Temporal Duty (Hrs/Day)</Label>
                     <Input 
-                      id="hours" 
                       type="number"
                       step="0.5"
                       value={formData.hours} 
                       onChange={(e) => setFormData({...formData, hours: parseFloat(e.target.value) || 0})}
+                      className="h-12 rounded-xl bg-secondary border-none font-bold uppercase tracking-widest text-[10px]"
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="days">Days Used Per Month</Label>
+                    <Label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-1">Operation Span (Days/Month)</Label>
                     <Input 
-                      id="days" 
                       type="number"
                       value={formData.days} 
                       onChange={(e) => setFormData({...formData, days: parseInt(e.target.value) || 0})}
+                      className="h-12 rounded-xl bg-secondary border-none font-bold uppercase tracking-widest text-[10px]"
                     />
                   </div>
                 </div>
@@ -360,9 +380,13 @@ export default function ApplianceManager() {
             )}
           </div>
 
-          <DialogFooter className="p-6 border-t font-sans">
-            <Button variant="outline" onClick={() => setIsAddOpen(false)}>Cancel</Button>
-            <Button onClick={handleAddAppliance} disabled={!selectedTemplate}>Add Appliance</Button>
+          <DialogFooter className="p-0 border-none flex-col sm:flex-row gap-4 pt-4 border-t border-border/40">
+            <Button variant="outline" onClick={() => setIsAddOpen(false)} className="flex-1 h-14 rounded-2xl font-black uppercase tracking-[0.2em] text-xs">
+              Decline Integration
+            </Button>
+            <Button onClick={handleAddAppliance} disabled={!selectedTemplate} className="flex-1 h-14 rounded-2xl font-black uppercase tracking-[0.2em] text-xs shadow-lg shadow-primary/20">
+              Confirm Provisioning
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

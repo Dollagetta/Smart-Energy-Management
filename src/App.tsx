@@ -1,7 +1,7 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { onAuthStateChanged, User } from "firebase/auth";
-import { auth } from "@/src/lib/firebase";
+import { auth } from "@/lib/firebase";
 import { Toaster } from "@/components/ui/sonner";
 import LandingPage from "./pages/LandingPage";
 import Dashboard from "./pages/Dashboard";

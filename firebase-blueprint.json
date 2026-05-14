@@ -39,12 +39,30 @@
         "estimatedCost": { "type": "number" },
         "createdAt": { "type": "string", "format": "date-time" }
       }
+    },
+    "SensorReading": {
+      "title": "IoT Sensor Reading",
+      "description": "Real-time electrical data from an IoT device like ESP32",
+      "type": "object",
+      "properties": {
+        "deviceId": { "type": "string" },
+        "voltage": { "type": "number" },
+        "current": { "type": "number" },
+        "power": { "type": "number" },
+        "energy": { "type": "number" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["deviceId", "voltage", "current", "power", "energy"]
     }
   },
   "firestore": {
     "users/{userId}/appliances": {
       "schema": "Appliance",
       "description": "Collection of appliances for a user"
+    },
+    "users/{userId}/sensorReadings": {
+      "schema": "SensorReading",
+      "description": "Time-series data from IoT sensors"
     },
     "users/{userId}/billHistory": {
       "schema": "BillHistory",
