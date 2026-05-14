@@ -10,7 +10,9 @@ import AIInsights from "./pages/AIInsights";
 import Reports from "./pages/Reports";
 import Settings from "./pages/Settings";
 import AuthPage from "./pages/AuthPage";
+import EnergyBalance from "./pages/EnergyBalance";
 import MainLayout from "./layouts/MainLayout";
+import BillCalculator from "./pages/BillCalculator";
 
 export default function App() {
   const [user, setUser] = useState<User | null>(null);
@@ -47,6 +49,8 @@ export default function App() {
         >
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/appliances" element={<ApplianceManager />} />
+          <Route path="/energy-balance" element={<EnergyBalance />} />
+          <Route path="/bill-calculator" element={<BillCalculator />} />
           <Route path="/ai-insights" element={<AIInsights />} />
           <Route path="/reports" element={<Reports />} />
           <Route path="/settings" element={<Settings />} />

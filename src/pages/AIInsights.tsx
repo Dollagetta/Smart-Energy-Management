@@ -56,7 +56,7 @@ export default function AIInsights() {
     setIsLoading(true);
 
     try {
-      const systemInstruction = `You are an expert AI Energy Consultant for the Smart Energy Manager AI app. 
+      const systemInstruction = `You are an expert AI Energy Consultant for the FluxLogic app. 
       Your goal is to provide personalized, actionable advice to residential customers based on their appliance data and usage patterns.
       
       User's Current Appliances:
@@ -105,7 +105,7 @@ export default function AIInsights() {
             Neural <br />
             <span className="text-gradient italic">Insights</span>
           </h1>
-          <p className="text-muted-foreground font-medium">Calibrated advice from our proprietary energy specialization core.</p>
+          <p className="text-muted-foreground font-medium">Calibrated advice from our core.</p>
         </div>
         <div className="flex items-center gap-3 px-6 py-3 bg-primary text-primary-foreground rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-primary/20">
           <Sparkles className="h-4 w-4 fill-current animate-pulse" /> Neural Core Active
@@ -250,7 +250,7 @@ export default function AIInsights() {
               </CardTitle>
             </CardHeader>
             <CardContent className="text-[10px] font-bold uppercase tracking-widest leading-relaxed text-muted-foreground p-6 pt-2 space-y-4">
-              <p>Specialized engine trained on <span className="text-foreground">7,500+ residential telemetry sets</span> and global IEC standards.</p>
+              <p>Engine trained on <span className="text-foreground">7,500+ telemetry sets</span>.</p>
               <div className="p-4 bg-muted/30 rounded-[1.25rem] border border-border/40 italic">
                 <span className="text-primary font-black mr-2">CALIBRATION:</span> 
                 Supply regional tariff data for sub-cent billing accuracy.

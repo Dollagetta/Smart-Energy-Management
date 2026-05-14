@@ -168,8 +168,9 @@ export default function ApplianceManager() {
                     initial={{ opacity: 0, scale: 0.9 }}
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0, scale: 0.95 }}
+                    whileHover={{ scale: 1.02, transition: { duration: 0.2 } }}
                   >
-                    <Card className="group relative overflow-hidden bg-card border border-border/60 card-hover shadow-sm">
+                    <Card className="group relative overflow-hidden bg-card border border-border/60 shadow-sm h-full">
                       <div className="absolute top-4 right-4 z-20">
                         <Button 
                           variant="ghost" 

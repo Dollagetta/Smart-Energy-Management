@@ -1,4 +1,5 @@
 import { useState, FormEvent } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { 
   signInWithPopup, 
   createUserWithEmailAndPassword, 
@@ -10,13 +11,14 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Zap, Github } from "lucide-react";
+import { Zap, Github, ChevronLeft } from "lucide-react";
 import { toast } from "sonner";
 
 export default function AuthPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
 
   const handleEmailAuth = async (e: FormEvent, type: "login" | "signup") => {
     e.preventDefault();
@@ -49,15 +51,24 @@ export default function AuthPage() {
   };
 
   return (
-    <div className="flex h-screen items-center justify-center bg-slate-50 p-4">
-      <Card className="w-full max-w-md border-none shadow-2xl">
+    <div className="flex min-h-screen items-center justify-center bg-slate-50 p-4 relative pt-20 sm:pt-4">
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={() => navigate("/")}
+        className="absolute top-6 left-6 sm:top-8 sm:left-8 rounded-xl font-black uppercase tracking-widest text-[10px] gap-2 hover:bg-primary/5 hover:text-primary z-20"
+      >
+        <ChevronLeft className="h-4 w-4" /> Home
+      </Button>
+
+      <Card className="w-full max-w-md border-none shadow-2xl relative z-10">
         <CardHeader className="space-y-1 text-center">
           <div className="flex justify-center mb-4">
             <div className="h-12 w-12 rounded-xl bg-primary flex items-center justify-center text-primary-foreground shadow-lg shadow-primary/20">
               <Zap className="h-7 w-7" />
             </div>
           </div>
-          <CardTitle className="text-2xl font-bold tracking-tight text-slate-900">Welcome to SmartEnergy</CardTitle>
+          <CardTitle className="text-2xl font-bold tracking-tight text-slate-900">Welcome to FluxLogic</CardTitle>
           <CardDescription>
             Enter your credentials to access your dashboard
           </CardDescription>
@@ -162,9 +173,16 @@ export default function AuthPage() {
             </Button>
           </div>
         </CardContent>
-        <CardFooter className="flex flex-col text-center space-y-4">
+        <CardFooter className="flex flex-col text-center space-y-4 pt-6">
           <p className="text-xs text-slate-500">
             By clicking continue, you agree to our Terms of Service and Privacy Policy.
+          </p>
+          <div className="flex items-center justify-center gap-2 text-slate-400">
+            <Zap className="h-4 w-4 fill-primary text-primary" />
+            <span className="font-bold text-sm tracking-tight font-heading">FluxLogic</span>
+          </div>
+          <p className="text-[10px] uppercase tracking-widest text-slate-400">
+            © 2026 FluxLogic Inc. All rights reserved.
           </p>
         </CardFooter>
       </Card>
