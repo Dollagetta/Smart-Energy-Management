@@ -12,7 +12,8 @@ import {
   X,
   Leaf,
   FileText,
-  Calculator
+  Calculator,
+  ChevronLeft
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "motion/react";
